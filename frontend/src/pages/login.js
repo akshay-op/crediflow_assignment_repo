@@ -20,7 +20,7 @@ const LoginPage = () => {
     const Username = process.env.REACT_APP_USERNAME;
     const Password = process.env.REACT_APP_PASSWORD;
 
-    if (Username === 'admin' && Password === '1234') {
+    if (username === Username && password === Password) {
       // Navigate to the upload page upon successful login
       navigate('/upload');
     } else {
