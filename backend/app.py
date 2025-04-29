@@ -25,6 +25,11 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@app.route("/")
+def base():
+    return jsonify({"message": "All good ! "}), 200
+
+
 @app.route("/upload/<path:filename>")
 def serve_image(filename):
     """
