@@ -8,7 +8,6 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 import logging
-import datetime as datetime
 
 
 class PdfImageExtractor:
@@ -33,7 +32,7 @@ class PdfImageExtractor:
 
     def extract_images_from_pdf(self):
         logging.info(
-            f"image extractio process Initiated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}"
+            f"image extraction process Initiated "
         )
         """
         Extracts as image from provided pdf for each pages.
@@ -83,7 +82,7 @@ class PdfImageExtractor:
         Filter pages that contain both relevant keywords and high digit density aka the pages with financial data.
         """
         logging.info(
-            f"relevant pages extraction running: {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}"
+            f"relevant pages extraction running"
         )
 
         relevant_images = []
@@ -108,7 +107,7 @@ class imageUrl:
 
         """
         # base_url = "http://127.0.0.1:5000/upload/"
-        base_url_development = "https://a1e2-49-47-196-211.ngrok-free.app/upload/"
+        base_url_development = "https://crediflowassignmentrepo-production.up.railway.app/upload/"
 
         relevantlist = []
 

@@ -1,6 +1,5 @@
 from preprocess import *
 from multillm import *
-from datetime import datetime
 import logging
 import json
 
@@ -20,7 +19,7 @@ class startprocess:
         try:
 
             logging.info(
-                f"Process Initiated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')} for file: {filename}"
+                f"Process Initiated for file: {filename}"
             )
             # to extract correct pages containing balance sheet, income statment and cash flow
             tablekeywords = [
@@ -64,7 +63,7 @@ class startprocess:
             images = imageExtractor.extract_images_from_pdf()
             relevantPages = imageExtractor.filter_relevant_pages(images)
             logging.info(
-                f"relevant 5 pages  found: {datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')} for file: {filename}"
+                f"relevant 5 pages  found  for file: {filename}"
             )
 
             print("relevant pages", relevantPages)
