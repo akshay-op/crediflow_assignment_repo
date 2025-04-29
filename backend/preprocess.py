@@ -107,7 +107,7 @@ class imageUrl:
 
         """
         # base_url = "http://127.0.0.1:5000/upload/"
-        base_url_development = "https://crediflowassignmentrepo-production.up.railway.app/upload/"
+        base_url_development = "https://crediflowassignmentrepo-production.up.railway.app/upload/" #railway production url
 
         relevantlist = []
 
