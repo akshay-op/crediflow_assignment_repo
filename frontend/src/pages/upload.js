@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 const UploadPage = () => {
   const [file, setFile] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(false); // Track if upload was successful
-  const navigate = useNavigate(); // <-- ADD THIS
+  const navigate = useNavigate(); 
   const [loading, setLoading] = useState(false);
 
   const handleFileChange = (e) => {
@@ -41,7 +41,7 @@ const UploadPage = () => {
 
     try {
       // Replace with your Flask API endpoint
-      const response = await axios.post('http://127.0.0.1:5000/upload', formData, {
+      const response = await axios.post('https://crediflowassignmentrepo-production.up.railway.app/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -60,11 +60,11 @@ const UploadPage = () => {
       setLoading(true);
       await new Promise(resolve => setTimeout(resolve, 50));
       console.log("f name:", file.name)
-      // 👇 your API call here
-      const response = await fetch('http://127.0.0.1:5000/start-process', {
+      //   API call to start process 
+      const response = await fetch('https://crediflowassignmentrepo-production.up.railway.app/start-process', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',  // ✅ this is very important
+          'Content-Type': 'application/json',  //  this is very important
         },
         body: JSON.stringify({
           fileName: file.name,
@@ -97,11 +97,6 @@ const UploadPage = () => {
       setLoading(false);
     }
   };
-
-
-
-
-
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 bg-gradient-to-br from-emerald-600 to-teal-700">
