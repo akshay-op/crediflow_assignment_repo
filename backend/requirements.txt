@@ -4,6 +4,7 @@ filelock==3.18.0
 Flask==3.1.0
 flask-cors==5.0.1
 groq==0.23.1
+gunicorn=23.0.0
 numpy==2.2.5
 pandas==2.2.3
 pdfplumber==0.11.6
@@ -18,8 +19,5 @@ scipy==1.15.2
 spacy==3.8.5
 spacy-legacy==3.0.12
 spacy-loggers==1.0.5
-
-
-
 Werkzeug==3.1.3
 
