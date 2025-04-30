@@ -4,5 +4,5 @@ commands = [
   "apt-get install -y software-properties-common",
   "add-apt-repository -y ppa:alex-p/tesseract-ocr",
   "apt-get update",
-  "apt-get install -y tesseract-ocr=4.1.1-2"
+  "apt-get install -y tesseract-ocr=3.05.01~dfsg-0.1"
 ]
