@@ -1,2 +1,8 @@
 [phases.setup]
-aptPkgs = ["tesseract-ocr"]
+commands = [
+  "apt-get update",
+  "apt-get install -y software-properties-common",
+  "add-apt-repository -y ppa:alex-p/tesseract-ocr",
+  "apt-get update",
+  "apt-get install -y tesseract-ocr=4.1.1-2"
+]
