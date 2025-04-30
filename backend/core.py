@@ -83,15 +83,13 @@ class startprocess:
             """
 
             print("calling groq")
-
             output = groqconnect.groqinference(relevantPagesUrl, llmprompt)
             print("output:", output)
-
-            data_vocabulary_update = vocabularyupdate.labelchange(output)
-            print("data after update :",data_vocabulary_update)
-
-            json_output = dataprocess.data_to_json(json.loads(data_vocabulary_update))
-            print("json output:", json_output)
+         
+            data_vocabulary_update = VocabularyUpdate.labelchange(json.loads(output))
+            # print("data after update :",data_vocabulary_update)
+            json_output = dataprocess.data_to_json(data_vocabulary_update)
+            # print("json output:", json_output)
 
             tempdata = {
                 "BalanceSheet": '[{"Particular":"Non-current assets","2020":"2,368.4","2019":"2,794.1"},{"Particular":"Intangible assets","2020":"2,368.4","2019":"2,794.1"},{"Particular":"Property, plant and equipment","2020":"3,965.3","2019":"3,040.7"},{"Particular":"Investments","2020":"25.1","2019":"25.1"},{"Particular":"Deferred tax asset","2020":"1,124.2","2019":"1,014.3"},{"Particular":"Post-employment benefits - asset","2020":"489.2","2019":"81.4"},{"Particular":"Current assets","2020":"7,972.2","2019":"6,955.6"},{"Particular":"Inventories","2020":"116.4","2019":"160.9"},{"Particular":"Trade and other receivables","2020":"3,582.2","2019":"3,400.8"},{"Particular":"Cash and cash equivalents","2020":"24.3","2019":"32.5"}]',

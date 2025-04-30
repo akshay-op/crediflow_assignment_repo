@@ -219,7 +219,7 @@ class dataprocess:
         return json_data
 
 
-class vocabularyupdate:
+class VocabularyUpdate:
 
     vocabulary = [
         "Cash",
@@ -268,13 +268,18 @@ class vocabularyupdate:
         "TOTAL EQUITY & LIABILITIES",
     ]
 
+    @staticmethod
     def precompute_vocab_vectors(vocabulary):
         return {term: nlp(term).vector for term in vocabulary}
 
-    def find_best_match(term, vocab_vectors):
-        term_vec = nlp(term).vector
-        similarities = []
+    @staticmethod
+    def find_best_match(term, vocab_vectors, threshold=0.80):
+        term_clean = term.strip()
+        term_vec = nlp(term_clean).vector
+        if np.linalg.norm(term_vec) == 0:
+            return term  # Skip if vector is zero
 
+        similarities = []
         for vocab_term, vocab_vec in vocab_vectors.items():
             sim = np.dot(term_vec, vocab_vec) / (
                 np.linalg.norm(term_vec) * np.linalg.norm(vocab_vec)
@@ -282,28 +287,45 @@ class vocabularyupdate:
             similarities.append((vocab_term, sim))
 
         best_match = max(similarities, key=lambda x: x[1])
-        return best_match[0]
+        if best_match[1] >= threshold:
+            return best_match[0]
+        else:
+            return term
 
+    @staticmethod
     def relabel_data_using_vocabulary(data, vocabulary):
-
-        vocab_vectors = vocabularyupdate.precompute_vocab_vectors(vocabulary)
+        vocab_vectors = VocabularyUpdate.precompute_vocab_vectors(vocabulary)
+        changes = []
 
         def relabel_item(item):
             if isinstance(item, list):
                 for sub_item in item:
                     if isinstance(sub_item, dict) and "Particular" in sub_item:
-                        sub_item["Particular"] = vocabularyupdate.find_best_match(
-                            sub_item["Particular"], vocab_vectors
+                        original = sub_item["Particular"]
+                        new_label = VocabularyUpdate.find_best_match(
+                            original, vocab_vectors
                         )
+                        if original != new_label:
+                            changes.append(
+                                f'Previous word: "{original}" changed to: "{new_label}"'
+                            )
+                        sub_item["Particular"] = new_label
             elif isinstance(item, dict):
                 for key, value in item.items():
                     relabel_item(value)
 
         relabel_item(data)
+
+        print("\nLabels changed according to vocabulary list:\n")
+        if changes:
+            for change in changes:
+                print(change)
+        else:
+            print("No changes were made.")
         return data
 
+    @staticmethod
     def labelchange(data):
-        updated_data = vocabularyupdate.relabel_data_using_vocabulary(
-            data, vocabularyupdate.vocabulary
+        return VocabularyUpdate.relabel_data_using_vocabulary(
+            data, VocabularyUpdate.vocabulary
         )
-        return updated_data
