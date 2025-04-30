@@ -86,7 +86,11 @@ class startprocess:
 
             output = groqconnect.groqinference(relevantPagesUrl, llmprompt)
             print("output:", output)
-            json_output = dataprocess.data_to_json(json.loads(output))
+
+            data_vocabulary_update = vocabularyupdate.labelchange(output)
+            print("data after update :",data_vocabulary_update)
+
+            json_output = dataprocess.data_to_json(json.loads(data_vocabulary_update))
             print("json output:", json_output)
 
             tempdata = {
@@ -94,6 +98,8 @@ class startprocess:
                 "IncomeStatement": '[{"Particular":"Revenue","2020":"5,657.6","2019":"5,512.9"},{"Particular":"Cost of sales","2020":"(4,045.5)","2019":"(4,222.2)"},{"Particular":"Gross profit","2020":"1,612.1","2019":"1,290.7"},{"Particular":"Selling and distribution costs","2020":"(578.1)","2019":"(637.8)"},{"Particular":"Administrative expenses","2020":"(1,284.2)","2019":"(1,255.0)"},{"Particular":"Net credit losses on financial assets","2020":"(101.3)","2019":"(74.7)"},{"Particular":"Operating loss","2020":"(351.5)","2019":"(676.8)"},{"Particular":"Net finance expense","2020":"(23.5)","2019":"(2.7)"},{"Particular":"Loss on ordinary activities before taxation","2020":"(375.0)","2019":"(679.5)"},{"Particular":"Income tax on ordinary activities","2020":"148.8","2019":"92.3"},{"Particular":"Loss for the financial year","2020":"(226.2)","2019":"(587.2)"}]',
                 "CashFlowStatement": "[]",
             }
+
+            #
 
             # return tempdata
             return json_output

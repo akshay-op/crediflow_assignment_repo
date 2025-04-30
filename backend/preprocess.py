@@ -8,6 +8,10 @@ from PIL import Image
 import pandas as pd
 import numpy as np
 import logging
+import spacy
+
+# Load pre-trained spaCy model
+nlp = spacy.load("en_core_web_md")
 
 
 class PdfImageExtractor:
@@ -31,9 +35,7 @@ class PdfImageExtractor:
             return " file path not found"
 
     def extract_images_from_pdf(self):
-        logging.info(
-            f"image extraction process Initiated "
-        )
+        logging.info(f"image extraction process Initiated ")
         """
         Extracts as image from provided pdf for each pages.
         """
@@ -81,9 +83,7 @@ class PdfImageExtractor:
         """
         Filter pages that contain both relevant keywords and high digit density aka the pages with financial data.
         """
-        logging.info(
-            f"relevant pages extraction running"
-        )
+        logging.info(f"relevant pages extraction running")
 
         relevant_images = []
         for i, image in enumerate(images):
@@ -107,7 +107,10 @@ class imageUrl:
 
         """
         # base_url = "http://127.0.0.1:5000/upload/"
-        base_url_development = "https://crediflowassignmentrepo-production.up.railway.app/upload/" #railway production url
+        # base_url_development = "https://crediflowassignmentrepo-production.up.railway.app/upload/"  # railway production url
+        base_url_development = (
+            "https://bf1f-49-47-199-108.ngrok-free.app/upload/"  # local development
+        )
 
         relevantlist = []
 
@@ -214,3 +217,93 @@ class dataprocess:
         }
 
         return json_data
+
+
+class vocabularyupdate:
+
+    vocabulary = [
+        "Cash",
+        "Accts Rec-Trade (Trade Debtors)",
+        "Inventory (Stock)",
+        "Tax Receivable",
+        "Other Current Assets / Other Debtors",
+        "Current Related Party Assets",
+        "Prepayments and accrued income",
+        "Land & Buildings",
+        "Plant & Machinery",
+        "Non Current Receivables",
+        "Non Current Related Party Assets",
+        "Other Fixed Assets",
+        "Goodwill",
+        "Related Party Assets - Intangible",
+        "Other Intangible Assets",
+        "Overdraft and Short Term Debt",
+        "Current Maturities, Long Term Debt",
+        "Current Maturities",
+        "Subordinated Debt",
+        "Accts Payable - Trade (Trade Creditors)",
+        "Other Payables (Other Creditors)",
+        "Income Taxes Payable",
+        "Other Taxation and Social Security",
+        "Current Related Party Liabilities",
+        "Accrued expenses and prepaid income",
+        "Other Liabilities - Current",
+        "Long Term Debt",
+        "Long Term Debt - Subordinated",
+        "Related Party Liabilities - Non Current",
+        "Provisions and Deferred Taxes",
+        "Other Non-Current Liabilities",
+        "Share Capital / Paid In Capital",
+        "Retained Earnings",
+        "Other Equity",
+        "Translation Adjustment",
+        "Minority Interests",
+        "CURRENT ASSETS",
+        "NON CURRENT ASSETS",
+        "TOTAL ASSETS",
+        "CURRENT LIABILITIES",
+        "NON CURRENT LIABILITIES",
+        "TOTAL LIABILITIES",
+        "EQUITY",
+        "TOTAL EQUITY & LIABILITIES",
+    ]
+
+    def precompute_vocab_vectors(vocabulary):
+        return {term: nlp(term).vector for term in vocabulary}
+
+    def find_best_match(term, vocab_vectors):
+        term_vec = nlp(term).vector
+        similarities = []
+
+        for vocab_term, vocab_vec in vocab_vectors.items():
+            sim = np.dot(term_vec, vocab_vec) / (
+                np.linalg.norm(term_vec) * np.linalg.norm(vocab_vec)
+            )
+            similarities.append((vocab_term, sim))
+
+        best_match = max(similarities, key=lambda x: x[1])
+        return best_match[0]
+
+    def relabel_data_using_vocabulary(data, vocabulary):
+
+        vocab_vectors = vocabularyupdate.precompute_vocab_vectors(vocabulary)
+
+        def relabel_item(item):
+            if isinstance(item, list):
+                for sub_item in item:
+                    if isinstance(sub_item, dict) and "Particular" in sub_item:
+                        sub_item["Particular"] = vocabularyupdate.find_best_match(
+                            sub_item["Particular"], vocab_vectors
+                        )
+            elif isinstance(item, dict):
+                for key, value in item.items():
+                    relabel_item(value)
+
+        relabel_item(data)
+        return data
+
+    def labelchange(data):
+        updated_data = vocabularyupdate.relabel_data_using_vocabulary(
+            data, vocabularyupdate.vocabulary
+        )
+        return updated_data
