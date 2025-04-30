@@ -306,9 +306,10 @@ class VocabularyUpdate:
                             original, vocab_vectors
                         )
                         if original != new_label:
-                            changes.append(
-                                f'Previous word: "{original}" changed to: "{new_label}"'
-                            )
+                            # changes.append(
+                            #     f'Previous word: "{original}" changed to: "{new_label}"'
+                            # )
+                            changes.append({"term": original, "definition": new_label})
                         sub_item["Particular"] = new_label
             elif isinstance(item, dict):
                 for key, value in item.items():
@@ -316,16 +317,14 @@ class VocabularyUpdate:
 
         relabel_item(data)
 
-        print("\nLabels changed according to vocabulary list:\n")
-        if changes:
-            for change in changes:
-                print(change)
-        else:
-            print("No changes were made.")
-        return data
+        return data, changes
 
     @staticmethod
     def labelchange(data):
-        return VocabularyUpdate.relabel_data_using_vocabulary(
+        print("inside label change")
+
+        data, changes = VocabularyUpdate.relabel_data_using_vocabulary(
             data, VocabularyUpdate.vocabulary
         )
+
+        return data, changes
