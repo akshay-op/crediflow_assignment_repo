@@ -34,5 +34,5 @@ class groqconnect:
         )
 
         groq_response = chat_completion.choices[0].message.content
-        print("groq response : ", groq_response)
+        # print("groq response : ", groq_response)
         return groq_response

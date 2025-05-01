@@ -108,15 +108,15 @@ class imageUrl:
         """
         # base_url = "http://127.0.0.1:5000/upload/"
         # base_url_development = "https://crediflowassignmentrepo-production.up.railway.app/upload/"  # railway production url
-        base_url_development = (
-            "https://bf1f-49-47-199-108.ngrok-free.app/upload/"  # local development
-        )
+
+        BASE_URL = os.environ.get("BASE_URL", "http://localhost:5000")
+        base_url_complete = BASE_URL + "/upload/"
 
         relevantlist = []
 
         for img in imagelist:
             splits = re.split(r"[\\/]", img)
-            relevanturl = base_url_development + splits[1] + "/" + splits[2]
+            relevanturl = base_url_complete + splits[1] + "/" + splits[2]
             relevantlist.append(relevanturl)
 
         return relevantlist

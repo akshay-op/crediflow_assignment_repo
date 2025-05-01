@@ -3,6 +3,9 @@ from flask_cors import CORS
 import os
 from core import *
 from werkzeug.exceptions import RequestEntityTooLarge
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
@@ -27,6 +30,7 @@ def allowed_file(filename):
 
 @app.route("/")
 def base():
+    print("base hit!")
     return jsonify({"message": "All good ! "}), 200
 
 
@@ -102,4 +106,6 @@ def start_process():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
+
