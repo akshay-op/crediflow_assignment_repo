@@ -1,19 +1,22 @@
-# Use Python 3.12.9 as the base image
+# Use Python 3.12.9 base image
 FROM python:3.12.9-slim
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Install Tesseract OCR dependencies
+# Install system dependencies (Tesseract OCR)
 RUN apt-get update && \
     apt-get install -y tesseract-ocr && \
-    apt-get clean
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy the current directory contents (from backend) into the container at /app
-COPY . /app
+# Copy your backend code into the container
+COPY . .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Command to run the application
-CMD ["python", "app.py"]
+# Expose port (optional, good for documentation)
+EXPOSE 5000
+
+# Command to run your Flask app with Gunicorn
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
