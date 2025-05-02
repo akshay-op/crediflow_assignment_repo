@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import logging
 import spacy
+import io
 
 # Load pre-trained spaCy model
 nlp = spacy.load("en_core_web_md")
@@ -48,12 +49,16 @@ class PdfImageExtractor:
                 xref = img[0]
                 base_image = doc.extract_image(xref)
                 image_bytes = base_image["image"]
+                image = Image.open(io.BytesIO(image_bytes))
+                image = image.resize((image.width // 2, image.height // 2), Image.LANCZOS)
 
                 image_path = os.path.join(
-                    self.path, f"page_{page_num + 1}_img_{img_index + 1}.png"
+                    self.path, f"page_{page_num + 1}_img_{img_index + 1}.jpg"
                 )
-                with open(image_path, "wb") as image_file:
-                    image_file.write(image_bytes)
+                # with open(image_path, "wb") as image_file:
+                #     image_file.write(image_bytes)
+                image.save(image_path, format="JPEG", quality=70)  # Reduce quality for size
+                image.close()
 
                 self.images.append(image_path)
         return self.images
@@ -65,6 +70,7 @@ class PdfImageExtractor:
         """
         img = Image.open(image_path)
         text = pytesseract.image_to_string(img)
+        img.close()
         return text
 
     def calculate_digit_density(self, text):
@@ -96,6 +102,8 @@ class PdfImageExtractor:
                 ):  # Setting 0.5 as a threshold value for digit density
                     self.relevant_pages.append(i + 1)
                     relevant_images.append(image)
+            else:
+                os.remove(image)
 
         return relevant_images
 
