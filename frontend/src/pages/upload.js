@@ -41,7 +41,7 @@ const UploadPage = () => {
 
     try {
       // Replace with your Flask API endpoint
-      const response = await axios.post('http://52.66.73.219/upload', formData, {
+      const response = await axios.post('https://amazingly-allowing-stag.ngrok-free.app/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -61,7 +61,7 @@ const UploadPage = () => {
       await new Promise(resolve => setTimeout(resolve, 50));
       console.log("f name:", file.name)
       //   API call to start process 
-      const response = await fetch('http://52.66.73.219/start-process', {
+      const response = await fetch('https://amazingly-allowing-stag.ngrok-free.app/start-process', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',  //  this is very important
