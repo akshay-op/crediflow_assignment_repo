@@ -1,6 +1,7 @@
 from groq import Groq
 import os
 from dotenv import load_dotenv
+import logging
 
 # Load environment variables from .env file
 load_dotenv()
@@ -8,6 +9,9 @@ load_dotenv()
 
 class groqconnect:
     def groqinference(imagelist, prompt):
+
+        logging.info("Groq inference being run . ..")
+        logging.info(" Image list served :", imagelist)
 
         client = Groq(
             api_key=os.environ.get("GROQ_API_KEY"),
