@@ -4,119 +4,85 @@ import pytesseract
 from PIL import Image
 import os
 import fitz
-from PIL import Image
 import pandas as pd
 import numpy as np
 import logging
 import spacy
 import io
+import cloudinary
+import cloudinary.uploader
+from dotenv import load_dotenv
 
 # Load pre-trained spaCy model
 nlp = spacy.load("en_core_web_md")
 
+load_dotenv()
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+)
 
-class PdfImageExtractor:
-    def __init__(self, pdf_name, output_folder, keywords=None):
-        """
-        Reads pdf provided and extract them as images fora each page and temporarily store them.
 
-        :param pdf_path: Path to the PDF file to be processed.
-        :param output_folder: Folder where the extracted images will be saved.
-        :param keywords: List of keywords to search for in the text.
-        """
-        self.pdf_name = pdf_name
-        self.output_folder = output_folder
-        self.keywords = keywords if keywords else []
-        self.images = []
-        self.relevant_pages = []
-        self.path = self.output_folder + "/" + self.pdf_name[:-4]
-
-        # Create output folder for storing images if it doesn't exist
-        if not os.path.exists(self.path):
-            return " file path not found"
-
-    def extract_images_from_pdf(self):
-        logging.info(f"image extraction process Initiated ")
-        """
-        Extracts as image from provided pdf for each pages.
-        """
-        print("path :", self.path + "/" + self.pdf_name)
-        doc = fitz.open(self.path + "/" + self.pdf_name)
-        for page_num in range(doc.page_count):
-            page = doc.load_page(page_num)
-            img_list = page.get_images(full=True)
-            for img_index, img in enumerate(img_list):
-                xref = img[0]
-                base_image = doc.extract_image(xref)
-                image_bytes = base_image["image"]
-                image = Image.open(io.BytesIO(image_bytes))
-                image = image.resize((image.width // 2, image.height // 2), Image.LANCZOS)
-
-                image_path = os.path.join(
-                    self.path, f"page_{page_num + 1}_img_{img_index + 1}.jpg"
-                )
-                # with open(image_path, "wb") as image_file:
-                #     image_file.write(image_bytes)
-                image.save(image_path, format="JPEG", quality=70)  # Reduce quality for size
-                image.close()
-
-                self.images.append(image_path)
-        return self.images
-
-    def extract_text_from_image(self, image_path):
-        """
-        Extract text from an image using pytesseract.
-
-        """
-        img = Image.open(image_path)
-        text = pytesseract.image_to_string(img)
-        img.close()
-        return text
+class PDFImageProcessor:
+    def __init__(self, pdf_path, cloud_folder, keywords=None, digit_threshold=0.05):
+        self.pdf_path = pdf_path
+        self.cloud_folder = cloud_folder
+        self.keywords = keywords or ["revenue", "profit", "loss", "income"]
+        self.digit_threshold = digit_threshold
+        self.doc = fitz.open(pdf_path)
 
     def calculate_digit_density(self, text):
-        """
-        Calculate digit density in the text (percentage of digits to total characters).
-        The calculated density is used in determinig the pages with financial data.
-        """
-
-        num_digits = sum(c.isdigit() for c in text)
         total_chars = len(text)
-        if total_chars == 0:
-            return 0
-        return num_digits / total_chars
+        digit_chars = sum(c.isdigit() for c in text)
+        return digit_chars / total_chars if total_chars > 0 else 0
 
-    def filter_relevant_pages(self, images):
-        """
-        Filter pages that contain both relevant keywords and high digit density aka the pages with financial data.
-        """
-        logging.info(f"relevant pages extraction running")
+    def is_relevant(self, text):
+        if not any(keyword.lower() in text.lower() for keyword in self.keywords):
+            return False
+        return self.calculate_digit_density(text) > self.digit_threshold
 
-        relevant_images = []
-        for i, image in enumerate(images):
-            text = self.extract_text_from_image(image)
-            if any(keyword.lower() in text.lower() for keyword in self.keywords):
+    def upload_to_cloudinary(self, image, public_id):
+        with io.BytesIO() as buffer:
+            image.save(buffer, format="JPEG", quality=70)
+            buffer.seek(0)
+            response = cloudinary.uploader.upload(
+                buffer, folder=self.cloud_folder, public_id=public_id
+            )
+        return response.get("secure_url")
 
-                digit_density = self.calculate_digit_density(text)
-                if (
-                    digit_density > 0.05
-                ):  # Setting 0.5 as a threshold value for digit density
-                    self.relevant_pages.append(i + 1)
-                    relevant_images.append(image)
-            else:
-                os.remove(image)
+    def process(self):
+        logging.info(f"Process Initiated for file: {self.pdf_path}")
+        for page_num in range(self.doc.page_count):
+            page = self.doc.load_page(page_num)
+            img_list = page.get_images(full=True)
 
-        return relevant_images
+            for img_index, img in enumerate(img_list):
+                xref = img[0]
+                base_image = self.doc.extract_image(xref)
+                image_bytes = base_image.get("image")
+
+                # Use with block for PIL image
+                with Image.open(io.BytesIO(image_bytes)) as image:
+                    image = image.resize(
+                        (image.width // 2, image.height // 2), Image.LANCZOS
+                    )
+
+                    text = pytesseract.image_to_string(image)
+                    if self.is_relevant(text):
+                        public_id = f"page_{page_num + 1}_img_{img_index + 1}"
+                        url = self.upload_to_cloudinary(image, public_id)
+                        yield {"url": url, "page": page_num + 1}
+
+    def close(self):
+        self.doc.close()
 
 
 class imageUrl:
     def imageurl(imagelist):
         """
         converts the saved images as web url deployment for making it accessible on network.
-
         """
-        # base_url = "http://127.0.0.1:5000/upload/"
-        # base_url_development = "https://crediflowassignmentrepo-production.up.railway.app/upload/"  # railway production url
-
         BASE_URL = os.environ.get("BASE_URL", "http://localhost:5000")
         base_url_complete = BASE_URL + "/upload/"
 

@@ -2,6 +2,7 @@ from preprocess import *
 from multillm import *
 import logging
 import json
+import requests
 
 # logs
 logging.basicConfig(
@@ -57,15 +58,21 @@ class startprocess:
                 "Income and Expense Statement",
             ]
 
-            imageExtractor = PdfImageExtractor(filename, "uploads", tablekeywords)
-            images = imageExtractor.extract_images_from_pdf()
-            relevantPages = imageExtractor.filter_relevant_pages(images)
-            logging.info(f"relevant 5 pages  found  for file: {filename}")
+            file_path = "uploads/" + filename[:-4] + "/" + filename
+            cloud_path = filename[:-4]
+            processor = PDFImageProcessor(
+                pdf_path=file_path, cloud_folder=cloud_path, keywords=tablekeywords
+            )
 
-            print("relevant pages", relevantPages)
+            relevantPagesUrl = []
+            rel_pages = []
 
-            relevantPagesUrl = imageUrl.imageurl(relevantPages)
-            print(relevantPagesUrl)
+            try:
+                for result in processor.process():
+                    relevantPagesUrl.append(result["url"])
+                    rel_pages.append(result["page"])
+            finally:
+                processor.close()
 
             # llmprompt = "Extract Balance Sheet, Income Statement, and Cash Flow tables (only if they exist). give output in json format"
             llmprompt = """
@@ -77,8 +84,32 @@ class startprocess:
                 Output only the final JSON, no extra text.
                 Return all numeric values as strings, exactly as shown (including commas and parentheses). Do not convert them to numbers.
             """
+            # relevantPagesUrl=['http://127.0.0.1:5000/upload/vodafone_annual_report_reduced/page_1_img_1.png', 'http://127.0.0.1:5000/upload/vodafone_annual_report_reduced/page_2_img_1.png', 'http://127.0.0.1:5000/upload/vodafone_annual_report_reduced/page_18_img_1.png', 'http://127.0.0.1:5000/upload/vodafone_annual_report_reduced/page_19_img_1.png', 'http://127.0.0.1:5000/upload/vodafone_annual_report_reduced/page_20_img_1.png']
+            # relevantPagesUrl = [
+            #     "http://52.66.73.219/upload/vodafone_annual_report_reduced/page_1_img_1.png",
+            #     "http://52.66.73.219/upload/vodafone_annual_report_reduced/page_2_img_1.png",
+            #     "http://52.66.73.219/upload/vodafone_annual_report_reduced/page_18_img_1.png",
+            #     "http://52.66.73.219/upload/vodafone_annual_report_reduced/page_19_img_1.png",
+            #     "http://52.66.73.219/upload/vodafone_annual_report_reduced/page_20_img_1.png",
+            # ]
+            # relevantPagesUrl = [
+            #     "https://raw.githubusercontent.com/akshay-op/imgBucket/refs/heads/main/page_18.png",
+            #     "https://raw.githubusercontent.com/akshay-op/imgBucket/refs/heads/main/page_19.png",
+            #     "https://raw.githubusercontent.com/akshay-op/imgBucket/refs/heads/main/page_20.png",
+            #     "https://raw.githubusercontent.com/akshay-op/imgBucket/refs/heads/main/page_18.png",
+            #     "https://raw.githubusercontent.com/akshay-op/imgBucket/refs/heads/main/page_19.png"
+            # ]
+
+            print("relevant pages :", rel_pages)
+            print("relevant page URL :", relevantPagesUrl)
 
             print("calling groq")
+            print(
+                "Internet OK"
+                if requests.get("https://www.google.com", timeout=5).status_code == 200
+                else "No Internet"
+            )
+
             output = groqconnect.groqinference(relevantPagesUrl, llmprompt)
             print("output:", output)
 
