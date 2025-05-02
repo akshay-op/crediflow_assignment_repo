@@ -11,7 +11,6 @@ class groqconnect:
     def groqinference(imagelist, prompt):
 
         logging.info("Groq inference being run . ..")
-        logging.info(" Image list served :", imagelist)
 
         client = Groq(
             api_key=os.environ.get("GROQ_API_KEY"),
@@ -36,7 +35,9 @@ class groqconnect:
             response_format={"type": "json_object"},
             max_completion_tokens=2048,
         )
-
-        groq_response = chat_completion.choices[0].message.content
+        try:
+            groq_response = chat_completion.choices[0].message.content
+        except Exception as e:
+            logging.error(f"Error during groq inference: {str(e)}")
         # print("groq response : ", groq_response)
         return groq_response
