@@ -119,7 +119,10 @@ The current setup relies on multimodal LLMs for extracting data from financial d
 - Reducing inference time  
   The current app takes almost 1-2 minutes to correctly extract data and produce an output. the major part in contributing to this time is the preprocessing part where the pdf image is preprocess to find relevant pages using ocr. If we can use LLM to do this , then the only worry will be about the LLM inference time. Also the free hosting with limited usage (ec2 free tier ) affects the performance to run this script.
 
-
+---
+# Live app:
+https://crediflow-assignment-repo-six.vercel.app/  
+Please note , inference can take 1  - 2 minutes due to hosting in free tier which affect the performance.  
 
  
     
