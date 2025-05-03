@@ -7,7 +7,7 @@ This platform is used to extract financial data from pdf file
 This is a full-stack document analysis platform that allows users to upload documents (.PDF), extract Balance sheet, Income statement, Cash flow data from them using multimodalLLM inference (via Groq), and generate structured, readable table. It's built using:
 
 -  **React** for the frontend
--  **Python ** for the backend
+-  **Python** for the backend
 -  **Groq** as the LLM inference engine
 -  **meta-llama/llama-4-scout-17b-16e-instruct** as the multimodalLLM used
 
