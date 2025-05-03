@@ -110,7 +110,14 @@ Using Tesseract to extract text from PDF pages worked, but not always cleanly. S
 
 - Used spaCy to clean up labels
   Since using LLM for relabelling was not a choice,I used spaCy's similarity matcher to compare each label to a predefined list of financial terms and swapped in the closest match.  
-  Not a 100 percent accurate solution but can give a fair result. Defined a threshold parameter to exchange those labels only with higher matches. increasing the threshold can help a good result but can missout on certain terms. 
+  Not a 100 percent accurate solution but can give a fair result. Defined a threshold parameter to exchange those labels only with higher matches. increasing the threshold can help a good result but can missout on certain terms.
+
+### in future 
+- Improve Multimodal LLM for Data Extraction  
+The current setup relies on multimodal LLMs for extracting data from financial documents. In the future, we can use fine-tuned models to improve accuracy, reducing the need for any additional pre-processing steps like page selection. By using advanced techniques, we could allow the model to extract relevant data from entire documents, including tables, images, and text, without the need for manual page filtering.
+
+- Reducing inference time  
+  The current app takes almost 1-2 minutes to correctly extract data and produce an output. the major part in contributing to this time is the preprocessing part where the pdf image is preprocess to find relevant pages using ocr. If we can use LLM to do this , then the only worry will be about the LLM inference time. Also the free hosting with limited usage (ec2 free tier ) affects the performance to run this script.
 
 
 
