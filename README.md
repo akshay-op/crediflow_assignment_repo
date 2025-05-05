@@ -37,22 +37,23 @@ project-root/
 ---
 
 ## Backend Setup 
-cd backend  
+
+<pre>cd backend  
 python3 -m venv venv  
 source venv/bin/activate  
-pip install -r requirements.txt  
+pip install -r requirements.txt </pre> 
 
 Create a .env file for Groq API and cloudinary credentials and configuration.
 
 ### Start the Flask server (in dev mode):
-python app.py
+<pre>python app.py
 Or use Gunicorn for production:  
-nohup gunicorn -w 1 -b 127.0.0.1:5000 --timeout 240 app:app &  
+nohup gunicorn -w 1 -b 127.0.0.1:5000 --timeout 240 app:app & </pre> 
 
 ## Frontend Setup 
-cd frontend  
+<pre> cd frontend  
 npm install  
-npm run dev   # or npm run build && npm start for production  
+npm run dev </pre>  # or npm run build && npm start for production  
 
 ---
 
