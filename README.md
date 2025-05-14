@@ -1,4 +1,4 @@
-# Crediflow Assignment - PDF data extractor
+# PDF data extractor
 
 This platform is used to extract financial data from pdf file 
 
@@ -124,7 +124,7 @@ The current setup relies on multimodal LLMs for extracting data from financial d
 # Live app:
 https://crediflow-assignment-repo-six.vercel.app/  
 Please note , inference can take 1  - 2 minutes due to hosting in free tier which affect the performance.   
-sample file -> https://github.com/akshay-op/crediflow_assignment_repo/blob/main/vodafone_annual_report_reduced.pdf
+sample file -> https://github.com/akshay-op/financial_data_extract/blob/main/vodafone_annual_report_reduced.pdf
 
  
     
